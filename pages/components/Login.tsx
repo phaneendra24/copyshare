@@ -1,24 +1,27 @@
 "use client";
-import { FormEvent } from "react";
+import { Cookie } from "next/font/google";
+import { FormEvent, useState } from "react";
 
 type eventType = {
   value: any;
 };
 
 export default function Login() {
+  const [value, setvalue] = useState<string>("");
   const submitform = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    let flag = (await e.target) as HTMLFormElement;
     const res = await fetch("/api/hello", {
       method: "POST",
       headers: {
         Accept: "application.json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ username: e.target.input.value }),
+      body: JSON.stringify({ username: value }),
     });
-    const data = await res.json();
-    console.log(data);
+
+    if (res.ok) {
+      window.location.href = "/chat";
+    }
   };
 
   return (
@@ -29,9 +32,10 @@ export default function Login() {
         </label>
         <input
           type="text"
-          id="input"
+          value={value}
           className="w-60 text-black p-2"
           placeholder="enter your username"
+          onChange={(e) => setvalue(e.target.value)}
         />
         <button type="submit" className="mt-5 p-3 bg-green-400 border-3">
           submit

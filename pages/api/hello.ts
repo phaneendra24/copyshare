@@ -1,22 +1,19 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-import { PrismaClient } from "@prisma/client";
 import type { NextApiRequest, NextApiResponse } from "next";
+import { prisma } from "./prisma";
 
 type Data = {
-  name: string;
+  username: string;
 };
-
-const prisma = new PrismaClient();
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
   if (req.method == "POST") {
-    const exists = await prisma.user.findUnique({
-      where: { username: req.body.username },
-    });
+    const exists = await prisma.user.findMany();
     console.log("exits", exists);
+
     if (exists == null) {
       try {
         await prisma.user.create({
@@ -24,10 +21,13 @@ export default async function handler(
             username: req.body.username,
           },
         });
+        res.status(200).json({ username: req.body.username });
       } catch (e) {
+        console.log("not working");
         console.log(e);
       }
+    } else {
+      res.status(200).json({ username: req.body.username });
     }
-    res.status(200).json(req.body);
   }
 }
